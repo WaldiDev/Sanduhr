@@ -150,12 +150,14 @@
   <ItemGroup>
     <ClCompile Include="EventHandler.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Sandglass.cpp" />
     <ClCompile Include="SceneHandler.cpp" />
     <ClCompile Include="ViewHandler.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventHandler.h" />
+    <ClInclude Include="Sandglass.h" />
     <ClInclude Include="SceneHandler.h" />
     <ClInclude Include="ViewHandler.h" />
     <ClInclude Include="World.h" />

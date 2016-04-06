@@ -21,6 +21,7 @@ void ViewHandler::Render()
 	std::stringstream stream;
 	stream << "FPS: " << fps << "\n";
 	stream << "LastFame: " << std::fixed << std::setprecision(2) << lastFrame << "ms\n";
+	stream << "Mouse: " << std::fixed << std::setprecision(2) << m_mouseX << "x " << m_mouseY << "y\n";
 	
 	m_infoText.setString(stream.str());
 
@@ -28,3 +29,24 @@ void ViewHandler::Render()
 
 	m_fpsClock.restart();
 }
+
+void ViewHandler::SetMousePos(float x, float y)
+{
+	m_mouseX = x;
+	m_mouseY = y;
+}
+
+void ViewHandler::ZoomIn()
+{
+	auto view = m_window->getView();
+	view.zoom(0.8f);
+	m_window->setView(view);
+}
+
+void ViewHandler::ZoomOut()
+{
+	auto view = m_window->getView();
+	view.zoom(1.2f);
+	m_window->setView(view);
+}
+

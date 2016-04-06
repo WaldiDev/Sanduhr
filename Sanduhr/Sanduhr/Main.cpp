@@ -1,3 +1,4 @@
+
 #include <windows.h>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include "World.h"
@@ -8,7 +9,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
 	auto pos = window->getPosition();
 	pos.y = 5;
 	window->setPosition(pos);
-	window->setVerticalSyncEnabled(true);
+	window->setVerticalSyncEnabled(false);
 
 	World world(window);
 	world.Run();

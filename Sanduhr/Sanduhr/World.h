@@ -16,9 +16,9 @@ private:
 	void Render();
 
 private:
-	sf::RenderWindow* m_window;
-	EventHandler m_eventHandler;
-	ViewHandler m_viewHandler;
-	SceneHandler m_sceneHandler;
+	sf::RenderWindow* m_window;	
+	ViewHandler* m_viewHandler;
+	SceneHandler* m_sceneHandler;
+	EventHandler* m_eventHandler;
 };
 

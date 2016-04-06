@@ -15,6 +15,9 @@ public:
 	explicit ViewHandler(sf::RenderWindow* window);
 
 	void Render();
+	void SetMousePos(float x, float y);
+	void ZoomIn();
+	void ZoomOut();
 
 private:
 	sf::RenderWindow* m_window;
@@ -22,5 +25,7 @@ private:
 	sf::Clock m_fpsClock;
 	sf::Text m_infoText;
 	std::string m_info;
+	float m_mouseX;
+	float m_mouseY;
 };
 

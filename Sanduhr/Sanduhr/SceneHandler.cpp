@@ -1,39 +1,23 @@
 #include "SceneHandler.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Graphics/Sprite.hpp>
+
 
 SceneHandler::SceneHandler(sf::RenderWindow* window)
-	: m_window(window)
+	: m_radius(10.0f)
+	, m_window(window)
 {
-	//m_renderTexture.create(300u, 1000u);
-	m_image.create(300u, 1000u);
-
-	auto offset = 0u;
-	for (auto row = 0u; row < 1000; ++row)
-	{
-		for (auto col = 0u; col < 300; ++col)
-		{
-			sf::Color color;
-
-			if (col < offset || col >= 300 - offset || row < 3 || row >= 997)		
-				color = sf::Color::Blue;
-			
-			else
-				if (row < 500)
-					color = sf::Color::Yellow;
-
-			m_image.setPixel(col, row, color);
-		}
-		if (row % 4 == 0)
-		{
-			if (row < 500)
-				offset++;
-			else
-				offset--;
-		}
-	}
-
+	m_texture.create(300, 1000);
+	m_sprite.setTexture(m_texture);
+	m_sprite.setOrigin(150.f, 500.f);
+	m_sprite.setPosition(500.f, 500.f);
+	m_sandglass.Initialize();
+	m_image = m_sandglass.CreateImage();
+	m_mouseRadius.setRadius(m_radius);
+	m_mouseRadius.setOrigin(m_radius, m_radius);
+	m_mouseRadius.setFillColor(sf::Color::Transparent);
+	m_mouseRadius.setOutlineThickness(2.0f);
+	m_mouseRadius.setOutlineColor(sf::Color::Red);
 }
 
 SceneHandler::~SceneHandler()
@@ -42,104 +26,42 @@ SceneHandler::~SceneHandler()
 
 void SceneHandler::Update(float delta)
 {
-	sf::Image buffer;
-	buffer.create(300u, 1000u);
-
-	for (auto row = 0u; row < 1000 - 1; ++row)
-	{
-		for (auto col = 0u; col < 300 - 1; ++col)
-		{
-			sf::Color state1, state2, state3, state4;
-			GetPixel(col, row, state1, state2, state3, state4);
-
-			if (state1 == sf::Color::Yellow && state2 != sf::Color::Yellow &&		// OX -> XX
-				state3 == sf::Color::Black && state4 != sf::Color::Yellow)			// XX -> OX
-			{
-				state1 = sf::Color::Black;
-				state3 = sf::Color::Yellow;
-			}
-			else if (state1 != sf::Color::Yellow && state2 == sf::Color::Yellow &&	// XO -> XX
-					 state3 != sf::Color::Yellow && state4 == sf::Color::Black)		// XX -> XO
-			{
-				state2 = sf::Color::Black;
-				state4 = sf::Color::Yellow;
-			}
-			else if (state1 == sf::Color::Yellow && state2 != sf::Color::Yellow &&	// OX -> XX
-					 state3 == sf::Color::Yellow && state4 == sf::Color::Black)		// OX -> OO
-			{
-				state1 = sf::Color::Black;
-				state4 = sf::Color::Yellow;
-			}
-			else if (state1 != sf::Color::Yellow && state2 == sf::Color::Yellow &&	// XO -> XX
-					 state3 == sf::Color::Black && state4 == sf::Color::Yellow)		// XO -> OO
-			{
-				state2 = sf::Color::Black;
-				state3 = sf::Color::Yellow;
-			}
-			else if (state1 == sf::Color::Yellow && state2 != sf::Color::Yellow &&	// OX -> XX
-					 state3 == sf::Color::Black && state4 == sf::Color::Yellow)		// XO -> OO
-			{
-				state1 = sf::Color::Black;
-				state3 = sf::Color::Yellow;
-			}
-			else if (state1 != sf::Color::Yellow && state2 == sf::Color::Yellow &&	// XO -> XX
-					 state3 == sf::Color::Yellow && state4 == sf::Color::Black)		// OX -> OO
-			{
-				state2 = sf::Color::Black;
-				state4 = sf::Color::Yellow;
-			}
-			else if (state1 == sf::Color::Yellow && state2 == sf::Color::Yellow &&	// OO -> XO
-					state3 == sf::Color::Black && state4 == sf::Color::Yellow)		// XO -> OO
-			{
-				state1 = sf::Color::Black;
-				state3 = sf::Color::Yellow;
-			}
-			else if (state1 == sf::Color::Yellow && state2 == sf::Color::Yellow &&	// OO -> OX
-					 state3 == sf::Color::Yellow && state4 == sf::Color::Black)		// OX -> OO
-			{
-				state2 = sf::Color::Black;
-				state4 = sf::Color::Yellow;
-			}
-			else if (state1 == sf::Color::Yellow && state2 == sf::Color::Yellow &&	// OO -> XX || OO
-					 state3 == sf::Color::Black && state4 == sf::Color::Black)		// XX -> OO || XX
-			{
-				state1 = sf::Color::Black;
-				state2 = sf::Color::Black;
-				state3 = sf::Color::Yellow;
-				state4 = sf::Color::Yellow;
-			}
-
-			SetPixel(col, row, state1, state2, state3, state4, buffer);
-		}
-	}
-
-	m_image = buffer;
+	m_sandglass.Update();
+	m_image = m_sandglass.CreateImage();
 }
 
 void SceneHandler::Render()
-{
-	sf::Texture texture;
-	texture.create(300, 1000);
-	texture.update(m_image);
-	sf::Sprite sprite(texture);
-	sprite.setOrigin(150.f, 500.f);
-	sprite.setPosition(500.f, 500.f);
-	
-	m_window->draw(sprite);
+{		
+	m_texture.update(m_image);	
+	m_window->draw(m_sprite);
+	m_window->draw(m_mouseRadius);
 }
 
-void SceneHandler::GetPixel(int col, int row, sf::Color& state1, sf::Color& state2, sf::Color& state3, sf::Color& state4) const
+void SceneHandler::SetMousePosition(float x, float y)
 {
-	state1 = m_image.getPixel(col + 0, row + 0);
-	state2 = m_image.getPixel(col + 1, row + 0);
-	state3 = m_image.getPixel(col + 0, row + 1);
-	state4 = m_image.getPixel(col + 1, row + 1);
+	m_mouseRadius.setPosition(x, y);
 }
 
-void SceneHandler::SetPixel(int col, int row, sf::Color state1, sf::Color state2, sf::Color state3, sf::Color state4, sf::Image& buffer) const
+void SceneHandler::IncreaseRadius()
 {
-	buffer.setPixel(col + 0, row + 0, state1);
-	buffer.setPixel(col + 1, row + 0, state2);
-	buffer.setPixel(col + 0, row + 1, state3);
-	buffer.setPixel(col + 1, row + 1, state4);
+	m_radius += 10.f;
+	m_mouseRadius.setRadius(m_radius);
+	m_mouseRadius.setOrigin(m_radius, m_radius);
+}
+
+void SceneHandler::DecreaseRadius()
+{
+	m_radius -= 10.f;
+	if (m_radius < 10.f)
+	{
+		m_radius = 10.0f;
+	}
+
+	m_mouseRadius.setRadius(m_radius);
+	m_mouseRadius.setOrigin(m_radius, m_radius);
+}
+
+void SceneHandler::DeleteSand(float x, float y)
+{
+	m_sandglass.DeleteSand(x, y, m_radius);
 }

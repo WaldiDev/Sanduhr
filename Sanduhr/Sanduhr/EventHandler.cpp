@@ -4,8 +4,13 @@
 #include <SFML/Window/Event.hpp>
 #include <assert.h>
 
-EventHandler::EventHandler(sf::RenderWindow* window)
+#include "SceneHandler.h"
+#include "ViewHandler.h"
+
+EventHandler::EventHandler(sf::RenderWindow* window, SceneHandler* sceneHandler, ViewHandler* viewHandler)
 	: m_window(window)
+	, m_sceneHandler(sceneHandler)
+	, m_viewHandler(viewHandler)
 {
 	assert(m_window);
 }
@@ -34,9 +39,13 @@ void EventHandler::Update()
 		case sf::Event::KeyReleased: break;
 		case sf::Event::MouseWheelMoved: break;
 		case sf::Event::MouseWheelScrolled: break;
-		case sf::Event::MouseButtonPressed: break;
+		case sf::Event::MouseButtonPressed: 
+			OnMousePressed(event.mouseButton.x, event.mouseButton.y, event.mouseButton.button);
+			break;
 		case sf::Event::MouseButtonReleased: break;
-		case sf::Event::MouseMoved: break;
+		case sf::Event::MouseMoved: 
+			OnMouseMoved(event.mouseMove.x, event.mouseMove.y);
+			break;
 		case sf::Event::MouseEntered: break;
 		case sf::Event::MouseLeft: break;
 		case sf::Event::JoystickButtonPressed: break;
@@ -56,5 +65,39 @@ void EventHandler::Update()
 
 void EventHandler::OnKeyPressed(int key)
 {
-
+	if (key == sf::Keyboard::Add)
+	{
+		m_sceneHandler->IncreaseRadius();
+	}
+	else if (key == sf::Keyboard::Subtract)
+	{
+		m_sceneHandler->DecreaseRadius();
+	}
+	else if (key == sf::Keyboard::Q)
+	{
+		m_viewHandler->ZoomIn();
+	}
+	else if (key == sf::Keyboard::E)
+	{
+		m_viewHandler->ZoomOut();
+	}
 }
+
+void EventHandler::OnMouseMoved(int x, int y)
+{
+	auto mouseCoord = m_window->mapPixelToCoords(sf::Vector2i(x, y));
+	m_viewHandler->SetMousePos(mouseCoord.x, mouseCoord.y);
+	m_sceneHandler->SetMousePosition(mouseCoord.x, mouseCoord.y);
+}
+
+void EventHandler::OnMousePressed(int x, int y, int button)
+{
+	if (button != sf::Mouse::Button::Left)
+	{
+		return;
+	}
+
+	auto mouseCoord = m_window->mapPixelToCoords(sf::Vector2i(x, y));
+	m_sceneHandler->DeleteSand(mouseCoord.x, mouseCoord.y);
+}
+
